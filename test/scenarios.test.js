@@ -15,6 +15,7 @@ test('a tie at 60 or more: every tied team wins', () => {
 test('a correction that pushes a team to 60 ends the game', () => {
   // X hits A,A in rounds 1-3: 12 + 14 + 16 = 42 (see the tie test).
   // Round 4: A is 8 and B is 7, no bonus, so 15 -> 57 (no winner yet).
+  // 57 is below 60, and one correction reaches 60.
   // Correcting b from B to A: 8 + 8 + 2 bonus = 18 -> 42 + 18 = 60.
   // Y misses every arrow (F is 0), so it stays at 0.
   const output = runWithTeams([
