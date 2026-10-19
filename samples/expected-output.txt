@@ -1,0 +1,146 @@
+Round 1
+Team scores
+-----------
+Gyrhuna: 9
+Achni: 5
+Bathar: 1
+
+Individual scores
+-----------------
+János Diák: 5
+Süsü: 4
+Meilong: 3
+Tianlong: 2
+Pakhangba: 1
+Poubi Lai Paphal: 0
+
+Bonus points
+------------
+Gyrhuna: 0
+Achni: 0
+Bathar: 0
+
+Round 2
+Team scores
+-----------
+Gyrhuna: 20
+Achni: 12
+Bathar: 3
+
+Individual scores
+-----------------
+János Diák: 11
+Süsü: 9
+Meilong: 7
+Tianlong: 5
+Pakhangba: 3
+Poubi Lai Paphal: 0
+
+Bonus points
+------------
+Gyrhuna: 0
+Achni: 0
+Bathar: 0
+
+Round 2 (corrected: Süsü B -> A)
+Team scores
+-----------
+Gyrhuna: 23
+Achni: 12
+Bathar: 3
+
+Individual scores
+-----------------
+János Diák: 11
+Süsü: 10
+Meilong: 7
+Tianlong: 5
+Pakhangba: 3
+Poubi Lai Paphal: 0
+
+Bonus points
+------------
+Gyrhuna: 2
+Achni: 0
+Bathar: 0
+
+Gyrhuna: 23 points after round 2
+Round 1  János Diák  A  5
+Round 1  Süsü        B  4
+Round 2  János Diák  A  6
+Round 2  Süsü        A  6  (corrected from B)
+Round 2  Bonus          2  (both hit A)
+
+Rejected line "A,B,A,A,G,A": G is not a circle. Waiting for round 3 again.
+
+Round 3
+Team scores
+-----------
+Gyrhuna: 36
+Achni: 28
+Bathar: 19
+
+Individual scores
+-----------------
+János Diák: 18
+Süsü: 16
+Meilong: 14
+Tianlong: 12
+Pakhangba: 10
+Poubi Lai Paphal: 7
+
+Bonus points
+------------
+Gyrhuna: 2
+Achni: 2
+Bathar: 2
+
+Achni: Shenlong replaces Tianlong from round 4.
+
+Round 4
+Team scores
+-----------
+Gyrhuna: 51
+Achni: 46
+Bathar: 35
+
+Individual scores
+-----------------
+János Diák: 26
+Süsü: 23
+Meilong: 22
+Tianlong: 12
+Shenlong: 8
+Pakhangba: 17
+Poubi Lai Paphal: 14
+
+Bonus points
+------------
+Gyrhuna: 2
+Achni: 4
+Bathar: 4
+
+Round 5
+Team scores
+-----------
+Gyrhuna: 66
+Achni: 62
+Bathar: 35
+
+Individual scores
+-----------------
+János Diák: 34
+Süsü: 30
+Meilong: 31
+Tianlong: 12
+Shenlong: 15
+Pakhangba: 17
+Poubi Lai Paphal: 14
+
+Bonus points
+------------
+Gyrhuna: 2
+Achni: 4
+Bathar: 4
+
+Game over. Gyrhuna won.

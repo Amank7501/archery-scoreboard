@@ -1,0 +1,16 @@
+TEAMS
+Gyrhuna: János Diák, Süsü; reserve Ludas Matyi
+Achni: Meilong, Tianlong; reserve Shenlong
+Bathar: Pakhangba, Poubi Lai Paphal; reserve Nongpok
+
+ORDER János Diák, Süsü, Meilong, Tianlong, Pakhangba, Poubi Lai Paphal
+A,B,C,D,E,F
+A,B,C,D,E,F
+CORRECTION Süsü: A
+EXPLAIN Gyrhuna
+A,B,A,A,G,A
+A,B,A,A,A,A
+SUBSTITUTE Tianlong -> Shenlong
+ORDER Meilong, Shenlong, János Diák, Süsü, Pakhangba, Poubi Lai Paphal
+A,A,A,B,B,B
+A,C,B,C,F,F
