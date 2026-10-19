@@ -50,4 +50,15 @@ function roundResults(state) {
   };
 }
 
-module.exports = { roundResults };
+const WINNING_SCORE = 60;
+
+// Teams that have reached 60, narrowed to the highest score. The spec doesn't
+// say what happens on an exact tie; assumption: every tied team is a winner.
+function findWinners(state) {
+  const scores = state.teams.map((team) => ({ name: team.name, score: teamScore(state, team.name) }));
+  const reached = scores.filter((entry) => entry.score >= WINNING_SCORE);
+  const top = Math.max(...reached.map((entry) => entry.score));
+  return reached.filter((entry) => entry.score === top).map((entry) => entry.name);
+}
+
+module.exports = { roundResults, findWinners };

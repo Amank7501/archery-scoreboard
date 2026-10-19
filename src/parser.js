@@ -79,6 +79,11 @@ function parseExplain(line) {
   return { type: 'EXPLAIN', team };
 }
 
+// Tells the caller which kind of line an ERROR was meant to be.
+function withLineType(lineType, result) {
+  return result.type === 'ERROR' ? { ...result, lineType } : result;
+}
+
 function parseLine(rawLine) {
   const line = rawLine.trim();
   if (line === '') return { type: 'BLANK' };
@@ -86,12 +91,12 @@ function parseLine(rawLine) {
 
   // Order matters: team lines are detected by ":", and CORRECTION lines
   // also contain ":", so the keyword commands must be checked before it.
-  if (/^ORDER\b/.test(line)) return parseOrder(line);
-  if (/^CORRECTION\b/.test(line)) return parseCorrection(line);
-  if (/^SUBSTITUTE\b/.test(line)) return parseSubstitute(line);
-  if (/^EXPLAIN\b/.test(line)) return parseExplain(line);
-  if (line.includes(':')) return parseTeam(line);
-  return parseRound(line);
+  if (/^ORDER\b/.test(line)) return withLineType('ORDER', parseOrder(line));
+  if (/^CORRECTION\b/.test(line)) return withLineType('CORRECTION', parseCorrection(line));
+  if (/^SUBSTITUTE\b/.test(line)) return withLineType('SUBSTITUTE', parseSubstitute(line));
+  if (/^EXPLAIN\b/.test(line)) return withLineType('EXPLAIN', parseExplain(line));
+  if (line.includes(':')) return withLineType('TEAM', parseTeam(line));
+  return withLineType('ROUND', parseRound(line));
 }
 
 module.exports = { parseLine };
