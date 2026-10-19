@@ -24,6 +24,10 @@ function correctionHeading({ round, archer, from, to }) {
   return `Round ${round} (corrected: ${archer} ${from} -> ${to})`;
 }
 
+function substitutionText({ team, reserve, injured, fromRound }) {
+  return [`${team}: ${reserve} replaces ${injured} from round ${fromRound}.`, ''].join('\n');
+}
+
 function rejectedText(line, reason, retryRound) {
   const waiting = retryRound === undefined ? '' : ` Waiting for round ${retryRound} again.`;
   return [`Rejected line "${line}": ${reason}.${waiting}`, ''].join('\n');
@@ -33,4 +37,4 @@ function gameOverText(winners) {
   return `Game over. ${joinNames(winners)} won.`;
 }
 
-module.exports = { scoreboardText, correctionHeading, rejectedText, gameOverText };
+module.exports = { scoreboardText, correctionHeading, substitutionText, rejectedText, gameOverText };

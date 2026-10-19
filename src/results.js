@@ -33,18 +33,13 @@ function archerScore(state, archer) {
   return sum(own.map(arrowPoints));
 }
 
-// Archers who have shot for the team, in order of their first arrow.
-function archersOfTeam(state, teamName) {
-  const names = arrowsOfTeam(state, teamName).map((arrow) => arrow.archer);
-  return [...new Set(names)];
-}
-
 function roundResults(state) {
   return {
     round: state.round,
     teamScores: state.teams.map((team) => ({ name: team.name, score: teamScore(state, team.name) })),
+    // Team members in roster order; a reserve sits after the archer they replaced.
     archerScores: state.teams.flatMap((team) =>
-      archersOfTeam(state, team.name).map((name) => ({ name, score: archerScore(state, name) }))
+      team.members.map((name) => ({ name, score: archerScore(state, name) }))
     ),
     bonuses: state.teams.map((team) => ({ name: team.name, bonus: teamBonus(state, team.name) })),
   };
