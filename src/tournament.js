@@ -1,3 +1,4 @@
+const { ARCHERS_PER_TEAM } = require('./scoring');
 const { pointItems, teamScore } = require('./results');
 
 function createTournament() {
@@ -7,7 +8,7 @@ function createTournament() {
     needsNewOrder: false,
     round: 0,
     arrows: [],
-    substituted: new Set(),
+    teamsThatSubstituted: new Set(),
   };
 }
 
@@ -29,15 +30,33 @@ function firstDuplicate(names) {
 }
 
 function addTeam(state, { name, archers, reserve }) {
-  if (archers.length !== 2) {
+  if (state.round > 0) {
+    return reject('teams cannot be added after the first round');
+  }
+  if (archers.length !== ARCHERS_PER_TEAM) {
     return reject(`${name} must have exactly two archers`);
   }
+  const everyone = [...archers, reserve];
+  const repeated = firstDuplicate(everyone);
+  if (repeated !== undefined) {
+    return reject(`${repeated} appears twice in ${name}`);
+  }
+  if (state.teams.some((team) => team.name === name)) {
+    return reject(`${name} is already a team`);
+  }
+  const taken = everyone.find((archer) => findTeamOf(state, archer));
+  if (taken !== undefined) {
+    return reject(`${taken} is already on ${findTeamOf(state, taken).name}`);
+  }
+  // `archers` are the two who play now. `members` is everyone who has played
+  // for the team, in scoreboard order: the injured archer's score stays on the
+  // scoreboard and the reserve is inserted after them.
   state.teams.push({ name, archers: [...archers], members: [...archers], reserve });
   return ok();
 }
 
 function isUnusedReserve(state, team, archer) {
-  return team.reserve === archer && !state.substituted.has(team.name);
+  return team.reserve === archer && !state.teamsThatSubstituted.has(team.name);
 }
 
 function currentArchers(state) {
@@ -76,6 +95,8 @@ function setOrder(state, archers) {
   return ok();
 }
 
+// A rejected round line leaves the round number unchanged: the tablet sends
+// that round again.
 function playRound(state, circles) {
   if (state.order.length === 0) {
     return reject(state.needsNewOrder ? 'send ORDER again after a substitution' : 'no ORDER yet');
@@ -85,18 +106,20 @@ function playRound(state, circles) {
   }
   state.round += 1;
   state.order.forEach((archer, index) => {
-    const team = findTeamOf(state, archer).name;
+    const teamName = findTeamOf(state, archer).name;
     const circle = circles[index];
-    state.arrows.push({ round: state.round, team, archer, circle, originalCircle: circle });
+    state.arrows.push({ round: state.round, teamName, archer, circle, originalCircle: circle });
   });
   return ok();
 }
 
-// Anyone on a roster, or who has shot (so a substituted-out archer still counts).
+// Anyone on a roster. A substituted-out archer stays in `members`, so they count too.
 function isKnownArcher(state, archer) {
-  return Boolean(findTeamOf(state, archer)) || state.arrows.some((arrow) => arrow.archer === archer);
+  return Boolean(findTeamOf(state, archer));
 }
 
+// A correction replaces the circle recorded for that arrow; it does not add a
+// second arrow. `originalCircle` keeps the first value, for EXPLAIN.
 function correctArrow(state, archer, circle) {
   if (state.round === 0) {
     return reject('no round yet');
@@ -124,10 +147,15 @@ function substitutionProblem(state, injured, reserve) {
   if (!team) return `${injured} is not an archer`;
   if (!team.archers.includes(injured)) return `${injured} is not playing`;
   if (team.reserve !== reserve) return `${reserve} is not ${team.name}'s reserve`;
-  if (state.substituted.has(team.name)) return `${team.name} has already used its substitution`;
+  // A team may substitute only once.
+  if (state.teamsThatSubstituted.has(team.name)) {
+    return `${team.name} has already used its substitution`;
+  }
   return null;
 }
 
+// The team keeps all its points and the injured archer's score stays. The
+// reserve starts at 0 and shoots from the next round, after a new ORDER line.
 function substitute(state, injured, reserve) {
   const problem = substitutionProblem(state, injured, reserve);
   if (problem !== null) {
@@ -136,10 +164,10 @@ function substitute(state, injured, reserve) {
   const team = findTeamOf(state, injured);
   team.archers[team.archers.indexOf(injured)] = reserve;
   team.members.splice(team.members.indexOf(injured) + 1, 0, reserve);
-  state.substituted.add(team.name);
+  state.teamsThatSubstituted.add(team.name);
   state.order = [];
   state.needsNewOrder = true;
-  return { ok: true, team: team.name, injured, reserve, fromRound: state.round + 1 };
+  return { ok: true, teamName: team.name, injured, reserve, fromRound: state.round + 1 };
 }
 
 function explainTeam(state, teamName) {
@@ -151,7 +179,7 @@ function explainTeam(state, teamName) {
   }
   return {
     ok: true,
-    team: teamName,
+    teamName,
     round: state.round,
     total: teamScore(state, teamName),
     items: pointItems(state, teamName),

@@ -14,6 +14,30 @@ test('round line: an empty entry is rejected', () => {
   assertError('A,,B', 'ROUND', 'round line has an empty entry');
 });
 
+test('round line: a two-letter entry is still a round line with a bad circle', () => {
+  assertError('A,B,AB', 'ROUND', 'AB is not a circle');
+});
+
+test('round line: a lowercase entry is still a round line with a bad circle', () => {
+  assertError('a,b', 'ROUND', 'a is not a circle');
+});
+
+test('unrecognised line: plain words are not recognised', () => {
+  assertError('HELLO WORLD', 'UNKNOWN', 'not a recognised line');
+});
+
+test('unrecognised line: a misspelt keyword is not recognised', () => {
+  assertError('SUBSTITUE a -> q', 'UNKNOWN', 'not a recognised line');
+});
+
+test('unrecognised line: a lowercase keyword is not recognised', () => {
+  assertError('order a, c', 'UNKNOWN', 'not a recognised line');
+});
+
+test('unrecognised line: a single entry with no comma is not recognised', () => {
+  assertError('A', 'UNKNOWN', 'not a recognised line');
+});
+
 test('team line: a missing reserve is rejected', () => {
   assertError(
     'X: a, b',

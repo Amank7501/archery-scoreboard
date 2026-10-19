@@ -24,7 +24,7 @@ function parseTeam(line) {
   const name = match[1].trim();
   const archers = splitList(match[2]);
   const reserve = match[3].trim();
-  if (name === '' || hasEmpty(archers)) {
+  if (hasEmpty(archers)) {
     return error(line, 'team line has an empty name');
   }
   return { type: 'TEAM', name, archers, reserve };
@@ -72,11 +72,17 @@ function parseSubstitute(line) {
 }
 
 function parseExplain(line) {
-  const team = line.replace(/^EXPLAIN\s*/, '');
-  if (team === '') {
+  const teamName = line.replace(/^EXPLAIN\s*/, '');
+  if (teamName === '') {
     return error(line, 'EXPLAIN needs a team name');
   }
-  return { type: 'EXPLAIN', team };
+  return { type: 'EXPLAIN', teamName };
+}
+
+// A round line has a comma and no entry with a space inside it. So "A,B,AB"
+// is a round line with a bad circle, while "HELLO WORLD" or "order a, c" are not.
+function looksLikeRound(line) {
+  return line.includes(',') && !splitList(line).some((entry) => /\s/.test(entry));
 }
 
 // Tells the caller which kind of line an ERROR was meant to be.
@@ -96,7 +102,8 @@ function parseLine(rawLine) {
   if (/^SUBSTITUTE\b/.test(line)) return withLineType('SUBSTITUTE', parseSubstitute(line));
   if (/^EXPLAIN\b/.test(line)) return withLineType('EXPLAIN', parseExplain(line));
   if (line.includes(':')) return withLineType('TEAM', parseTeam(line));
-  return withLineType('ROUND', parseRound(line));
+  if (looksLikeRound(line)) return withLineType('ROUND', parseRound(line));
+  return withLineType('UNKNOWN', error(line, 'not a recognised line'));
 }
 
 module.exports = { parseLine };

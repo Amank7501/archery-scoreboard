@@ -1,4 +1,6 @@
-const { pointsFor, bonusFor } = require('./scoring');
+const { pointsFor, bonusFor, ARCHERS_PER_TEAM } = require('./scoring');
+
+const WINNING_SCORE = 60;
 
 function sum(numbers) {
   return numbers.reduce((total, n) => total + n, 0);
@@ -9,7 +11,7 @@ function arrowPoints(arrow) {
 }
 
 function arrowsOfTeam(state, teamName) {
-  return state.arrows.filter((arrow) => arrow.team === teamName);
+  return state.arrows.filter((arrow) => arrow.teamName === teamName);
 }
 
 function arrowItem(arrow) {
@@ -40,7 +42,9 @@ function pointItems(state, teamName) {
       .filter((arrow) => arrow.round === round)
       .sort((a, b) => team.members.indexOf(a.archer) - team.members.indexOf(b.archer));
     items.push(...shots.map(arrowItem));
-    if (shots.length === 2) items.push(...bonusItem(round, shots));
+    // The bonus is based on the two archers who shot for the team in this
+    // round, so it stays correct after a substitution.
+    if (shots.length === ARCHERS_PER_TEAM) items.push(...bonusItem(round, shots));
   }
   return items;
 }
@@ -71,13 +75,13 @@ function roundResults(state) {
   };
 }
 
-const WINNING_SCORE = 60;
-
-// Teams that have reached 60, narrowed to the highest score. The spec doesn't
-// say what happens on an exact tie; assumption: every tied team is a winner.
+// The tournament ends at the end of the round in which a team reaches 60 or
+// more. If several teams do, the highest score wins. The spec doesn't say what
+// happens on an exact tie; assumption: every tied team is a winner.
 function findWinners(state) {
   const scores = state.teams.map((team) => ({ name: team.name, score: teamScore(state, team.name) }));
   const reached = scores.filter((entry) => entry.score >= WINNING_SCORE);
+  if (reached.length === 0) return [];
   const top = Math.max(...reached.map((entry) => entry.score));
   return reached.filter((entry) => entry.score === top).map((entry) => entry.name);
 }

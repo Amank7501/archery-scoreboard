@@ -12,6 +12,48 @@ test('TEAM: a team must have exactly two archers', () => {
   );
 });
 
+test('TEAM: the same archer twice in a team is rejected', () => {
+  assert.equal(
+    lastRejection(['Z: e, e; reserve g']),
+    'Rejected line "Z: e, e; reserve g": e appears twice in Z.'
+  );
+});
+
+test('TEAM: a reserve who is also one of the archers is rejected', () => {
+  assert.equal(
+    lastRejection(['Z: e, f; reserve e']),
+    'Rejected line "Z: e, f; reserve e": e appears twice in Z.'
+  );
+});
+
+test('TEAM: a duplicate team name is rejected', () => {
+  assert.equal(
+    lastRejection(['X: e, f; reserve g']),
+    'Rejected line "X: e, f; reserve g": X is already a team.'
+  );
+});
+
+test('TEAM: an archer already on another team is rejected', () => {
+  assert.equal(
+    lastRejection(['Z: a, f; reserve g']),
+    'Rejected line "Z: a, f; reserve g": a is already on X.'
+  );
+});
+
+test("TEAM: another team's reserve is rejected too", () => {
+  assert.equal(
+    lastRejection(['Z: e, f; reserve q']),
+    'Rejected line "Z: e, f; reserve q": q is already on Y.'
+  );
+});
+
+test('TEAM: no teams can be added after the first round', () => {
+  assert.equal(
+    lastRejection([ORDER, 'A,A,A,A', 'Z: e, f; reserve g']),
+    'Rejected line "Z: e, f; reserve g": teams cannot be added after the first round.'
+  );
+});
+
 test('ORDER: a name on no team is rejected', () => {
   assert.equal(
     lastRejection(['ORDER a, z, c, d']),
@@ -72,6 +114,20 @@ test('ROUND: an unknown circle is rejected and the same round is awaited', () =>
   assert.equal(
     lastRejection([ORDER, 'A,A,G,A']),
     'Rejected line "A,A,G,A": G is not a circle. Waiting for round 1 again.'
+  );
+});
+
+test('ROUND: a two-letter entry is rejected as a bad circle and the same round is awaited', () => {
+  assert.equal(
+    lastRejection([ORDER, 'A,B,AB,A']),
+    'Rejected line "A,B,AB,A": AB is not a circle. Waiting for round 1 again.'
+  );
+});
+
+test('an unrecognised line is rejected without a "Waiting for round" suffix', () => {
+  assert.equal(
+    lastRejection([ORDER, 'HELLO WORLD']),
+    'Rejected line "HELLO WORLD": not a recognised line.'
   );
 });
 

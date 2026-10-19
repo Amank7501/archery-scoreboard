@@ -16,6 +16,7 @@ const {
   explainText,
   rejectedText,
   gameOverText,
+  noWinnerText,
 } = require('./printer');
 
 function apply(state, command) {
@@ -25,7 +26,8 @@ function apply(state, command) {
   if (command.type === 'ROUND') return playRound(state, command.circles);
   if (command.type === 'CORRECTION') return correctArrow(state, command.archer, command.circle);
   if (command.type === 'SUBSTITUTE') return substitute(state, command.injured, command.reserve);
-  if (command.type === 'EXPLAIN') return explainTeam(state, command.team);
+  if (command.type === 'EXPLAIN') return explainTeam(state, command.teamName);
+  // TEAMS (the header) and blank lines need no action.
   return { ok: true };
 }
 
@@ -64,16 +66,21 @@ function handleLine(state, line) {
   return { blocks: [...blocks, gameOverText(winners)], over: true };
 }
 
-// Runs the input lines and returns everything to print. Stops after a winner.
+function toText(blocks) {
+  return blocks.map((block) => `${block}\n`).join('');
+}
+
+// Runs the input lines and returns everything to print. Stops after a winner;
+// if the input ends first, says so.
 function run(lines) {
   const state = createTournament();
   let output = '';
   for (const line of lines) {
     const { blocks, over } = handleLine(state, line);
-    output += blocks.map((block) => `${block}\n`).join('');
-    if (over) break;
+    output += toText(blocks);
+    if (over) return output;
   }
-  return output;
+  return output + toText([noWinnerText()]);
 }
 
 module.exports = { run };

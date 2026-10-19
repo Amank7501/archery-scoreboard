@@ -15,4 +15,4 @@ function lastRejection(lines) {
   return rejected[rejected.length - 1];
 }
 
-module.exports = { TEAMS, ORDER, run, runWithTeams, lastRejection };
+module.exports = { ORDER, runWithTeams, lastRejection };

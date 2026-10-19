@@ -24,23 +24,36 @@ function correctionHeading({ round, archer, from, to }) {
   return `Round ${round} (corrected: ${archer} ${from} -> ${to})`;
 }
 
-function substitutionText({ team, reserve, injured, fromRound }) {
-  return [`${team}: ${reserve} replaces ${injured} from round ${fromRound}.`, ''].join('\n');
+function substitutionText({ teamName, reserve, injured, fromRound }) {
+  return [`${teamName}: ${reserve} replaces ${injured} from round ${fromRound}.`, ''].join('\n');
+}
+
+const BONUS_LABEL = 'Bonus';
+
+function isBonus(item) {
+  return item.kind === 'BONUS';
+}
+
+function explainName(item) {
+  return isBonus(item) ? BONUS_LABEL : item.archer;
+}
+
+function explainNote(item) {
+  if (isBonus(item)) return `  (both hit ${item.circle})`;
+  if (item.correctedFrom) return `  (corrected from ${item.correctedFrom})`;
+  return '';
 }
 
 function explainLine(item, nameWidth) {
-  const name = item.kind === 'BONUS' ? 'Bonus' : item.archer;
-  const circle = item.kind === 'BONUS' ? ' ' : item.circle;
-  let note = '';
-  if (item.kind === 'BONUS') note = `  (both hit ${item.circle})`;
-  if (item.correctedFrom) note = `  (corrected from ${item.correctedFrom})`;
-  return `Round ${item.round}  ${name.padEnd(nameWidth)}  ${circle}  ${item.points}${note}`;
+  const name = explainName(item).padEnd(nameWidth);
+  const circle = isBonus(item) ? ' ' : item.circle;
+  return `Round ${item.round}  ${name}  ${circle}  ${item.points}${explainNote(item)}`;
 }
 
-function explainText({ team, round, total, items }) {
-  const nameWidth = Math.max('Bonus'.length, ...items.map((item) => (item.archer || '').length));
+function explainText({ teamName, round, total, items }) {
+  const nameWidth = Math.max(BONUS_LABEL.length, ...items.map((item) => explainName(item).length));
   return [
-    `${team}: ${total} points after round ${round}`,
+    `${teamName}: ${total} points after round ${round}`,
     ...items.map((item) => explainLine(item, nameWidth)),
     '',
   ].join('\n');
@@ -55,6 +68,10 @@ function gameOverText(winners) {
   return `Game over. ${joinNames(winners)} won.`;
 }
 
+function noWinnerText() {
+  return 'Input ended. No team has reached 60 points.';
+}
+
 module.exports = {
   scoreboardText,
   correctionHeading,
@@ -62,4 +79,5 @@ module.exports = {
   explainText,
   rejectedText,
   gameOverText,
+  noWinnerText,
 };

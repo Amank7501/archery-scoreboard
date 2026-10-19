@@ -1,13 +1,13 @@
 {
   "name": "archery-scoreboard",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Scoreboard for the Archeville Super-Archy Tournament",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.js\""
+    "start": "node src/main.js",
+    "test":"node --test \"test/*.test.js\""
   },
   "keywords": [],
   "author": "",
