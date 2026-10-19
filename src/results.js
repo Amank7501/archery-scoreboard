@@ -12,20 +12,46 @@ function arrowsOfTeam(state, teamName) {
   return state.arrows.filter((arrow) => arrow.team === teamName);
 }
 
-function teamBonus(state, teamName) {
+function arrowItem(arrow) {
+  const item = {
+    round: arrow.round,
+    kind: 'ARROW',
+    archer: arrow.archer,
+    circle: arrow.circle,
+    points: arrowPoints(arrow),
+  };
+  if (arrow.originalCircle !== arrow.circle) item.correctedFrom = arrow.originalCircle;
+  return item;
+}
+
+function bonusItem(round, shots) {
+  const points = bonusFor(shots[0].circle, shots[1].circle);
+  return points > 0 ? [{ round, kind: 'BONUS', circle: shots[0].circle, points }] : [];
+}
+
+// Every point a team has earned: one item per arrow and one per bonus, round
+// by round (arrows in roster order, then the bonus). Scores are sums of these.
+function pointItems(state, teamName) {
+  const team = state.teams.find((t) => t.name === teamName);
   const arrows = arrowsOfTeam(state, teamName);
-  const bonuses = [];
+  const items = [];
   for (let round = 1; round <= state.round; round++) {
-    const shots = arrows.filter((arrow) => arrow.round === round);
-    if (shots.length === 2) {
-      bonuses.push(bonusFor(shots[0].circle, shots[1].circle));
-    }
+    const shots = arrows
+      .filter((arrow) => arrow.round === round)
+      .sort((a, b) => team.members.indexOf(a.archer) - team.members.indexOf(b.archer));
+    items.push(...shots.map(arrowItem));
+    if (shots.length === 2) items.push(...bonusItem(round, shots));
   }
-  return sum(bonuses);
+  return items;
+}
+
+function teamBonus(state, teamName) {
+  const bonuses = pointItems(state, teamName).filter((item) => item.kind === 'BONUS');
+  return sum(bonuses.map((item) => item.points));
 }
 
 function teamScore(state, teamName) {
-  return sum(arrowsOfTeam(state, teamName).map(arrowPoints)) + teamBonus(state, teamName);
+  return sum(pointItems(state, teamName).map((item) => item.points));
 }
 
 function archerScore(state, archer) {
@@ -56,4 +82,4 @@ function findWinners(state) {
   return reached.filter((entry) => entry.score === top).map((entry) => entry.name);
 }
 
-module.exports = { roundResults, findWinners };
+module.exports = { roundResults, findWinners, pointItems, teamScore };

@@ -1,3 +1,5 @@
+const { pointItems, teamScore } = require('./results');
+
 function createTournament() {
   return {
     teams: [],
@@ -140,4 +142,28 @@ function substitute(state, injured, reserve) {
   return { ok: true, team: team.name, injured, reserve, fromRound: state.round + 1 };
 }
 
-module.exports = { createTournament, addTeam, setOrder, playRound, correctArrow, substitute };
+function explainTeam(state, teamName) {
+  if (!state.teams.some((team) => team.name === teamName)) {
+    return reject(`${teamName} is not a team`);
+  }
+  if (state.round === 0) {
+    return reject('no round yet');
+  }
+  return {
+    ok: true,
+    team: teamName,
+    round: state.round,
+    total: teamScore(state, teamName),
+    items: pointItems(state, teamName),
+  };
+}
+
+module.exports = {
+  createTournament,
+  addTeam,
+  setOrder,
+  playRound,
+  correctArrow,
+  substitute,
+  explainTeam,
+};

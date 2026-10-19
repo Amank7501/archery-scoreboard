@@ -7,12 +7,14 @@ const {
   playRound,
   correctArrow,
   substitute,
+  explainTeam,
 } = require('./tournament');
 const { roundResults, findWinners } = require('./results');
 const {
   scoreboardText,
   correctionHeading,
   substitutionText,
+  explainText,
   rejectedText,
   gameOverText,
 } = require('./printer');
@@ -21,7 +23,6 @@ function readLines(path) {
   return fs.readFileSync(path, 'utf8').replace(/\r?\n$/, '').split(/\r?\n/);
 }
 
-// EXPLAIN is ignored until a later phase.
 function apply(state, command) {
   if (command.type === 'ERROR') return { ok: false, reason: command.reason };
   if (command.type === 'TEAM') return addTeam(state, command);
@@ -29,6 +30,7 @@ function apply(state, command) {
   if (command.type === 'ROUND') return playRound(state, command.circles);
   if (command.type === 'CORRECTION') return correctArrow(state, command.archer, command.circle);
   if (command.type === 'SUBSTITUTE') return substitute(state, command.injured, command.reserve);
+  if (command.type === 'EXPLAIN') return explainTeam(state, command.team);
   return { ok: true };
 }
 
@@ -59,6 +61,10 @@ function handleLine(state, line) {
   }
   if (command.type === 'SUBSTITUTE') {
     console.log(substitutionText(result));
+    return false;
+  }
+  if (command.type === 'EXPLAIN') {
+    console.log(explainText(result));
     return false;
   }
   if (!isScoringLine(command)) return false;
