@@ -56,9 +56,34 @@ function playRound(state, circles) {
   state.round += 1;
   state.order.forEach((archer, index) => {
     const team = findTeamOf(state, archer).name;
-    state.arrows.push({ round: state.round, team, archer, circle: circles[index] });
+    const circle = circles[index];
+    state.arrows.push({ round: state.round, team, archer, circle, originalCircle: circle });
   });
   return ok();
 }
 
-module.exports = { createTournament, addTeam, setOrder, playRound };
+// Anyone on a roster, or who has shot (so a substituted-out archer still counts).
+function isKnownArcher(state, archer) {
+  return Boolean(findTeamOf(state, archer)) || state.arrows.some((arrow) => arrow.archer === archer);
+}
+
+function correctArrow(state, archer, circle) {
+  if (state.round === 0) {
+    return reject('no round yet');
+  }
+  if (!isKnownArcher(state, archer)) {
+    return reject(`${archer} is not an archer`);
+  }
+  const arrow = state.arrows.find((a) => a.round === state.round && a.archer === archer);
+  if (!arrow) {
+    return reject(`${archer} did not shoot in round ${state.round}`);
+  }
+  if (arrow.circle === circle) {
+    return reject(`${archer} already has ${circle} in round ${state.round}`);
+  }
+  const from = arrow.circle;
+  arrow.circle = circle;
+  return { ok: true, round: state.round, archer, from, to: circle };
+}
+
+module.exports = { createTournament, addTeam, setOrder, playRound, correctArrow };

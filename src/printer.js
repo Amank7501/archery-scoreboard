@@ -20,6 +20,10 @@ function scoreboardText(results, heading = `Round ${results.round}`) {
   ].join('\n');
 }
 
+function correctionHeading({ round, archer, from, to }) {
+  return `Round ${round} (corrected: ${archer} ${from} -> ${to})`;
+}
+
 function rejectedText(line, reason, retryRound) {
   const waiting = retryRound === undefined ? '' : ` Waiting for round ${retryRound} again.`;
   return [`Rejected line "${line}": ${reason}.${waiting}`, ''].join('\n');
@@ -29,4 +33,4 @@ function gameOverText(winners) {
   return `Game over. ${joinNames(winners)} won.`;
 }
 
-module.exports = { scoreboardText, rejectedText, gameOverText };
+module.exports = { scoreboardText, correctionHeading, rejectedText, gameOverText };
